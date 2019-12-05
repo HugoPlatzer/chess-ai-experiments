@@ -1,13 +1,26 @@
 #!/usr/bin/python3
 
 import position
+import random, sys
 
-#fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-#fen = "3rk3/ppp1b1pp/8/5r2/3Pp3/4P1nP/PPPKN2R/RN6 b - - 1 19"
-#fen = "r2qkb1r/ppp2ppp/2n2n2/6B1/3Pp1b1/4P1P1/PPP3BP/RN1QK1NR w KQkq - 1 8"
-fen = "3rk2r/ppp1b1pp/4B3/4np2/3Pp3/4P1P1/PPP4P/RN1K2NR b k - 5 13"
-#fen = "8/3KPk2/8/8/8/8/8/8 w - - 0 1"
+fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
-p = position.Position(fen)
-print(p)
-print(p.movesAsStr())
+random.seed(int(sys.argv[1]))
+p = position.Position(fen=fen)
+counter = 0
+while True:
+    p.evaluateFully()
+    print(p)
+    if not p.isValid():
+        raise Exception
+    print(p.movesAsStr())
+    print()
+    if len(p.legalMoves) == 0:
+        break
+    move = random.choice(list(p.legalMoves.keys()))
+    print("doing move {}/{}: {}".format(counter // 2 +  1, p.player,
+                                        position.moveToStr(move)))
+    p = p.legalMoves[move]
+    counter += 1
+    
+    

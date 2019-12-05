@@ -1,3 +1,8 @@
+squares = [(row, col) for row in range(8) for col in range(8)]
+
+def opponentOf(player):
+    return "b" if player == "w" else "w"
+
 def areOpponents(b, row1, col1, row2, col2):
     if b[row1][col1].isupper() and b[row2][col2].islower():
         return True
@@ -116,7 +121,8 @@ def pawnMoves(b, row, col, player, enpSquare):
     if (        isValidCoord(row + direction, col + 1)
             and areOpponents(b, row, col, row + direction, col + 1)):
         moves.append((row + direction, col + 1))
-    if areOpponents(b, row, col, row + direction, col - 1):
+    if (        isValidCoord(row + direction, col - 1)
+            and areOpponents(b, row, col, row + direction, col - 1)):
         moves.append((row + direction, col - 1))
     
     if (       enpSquare == (row + direction, col - 1)
@@ -125,16 +131,11 @@ def pawnMoves(b, row, col, player, enpSquare):
     
     promoMoves = []
     for m in moves:
-        if m[0] == 0:
+        if m[0] == 0 or m[0] == 7:
             promoMoves.append((m[0], m[1], "Q"))
             promoMoves.append((m[0], m[1], "N"))
             promoMoves.append((m[0], m[1], "R"))
             promoMoves.append((m[0], m[1], "B"))
-        elif m[0] == 7:
-            promoMoves.append((m[0], m[1], "q"))
-            promoMoves.append((m[0], m[1], "n"))
-            promoMoves.append((m[0], m[1], "r"))
-            promoMoves.append((m[0], m[1], "b"))
         else:
             promoMoves.append((m[0], m[1], None))
     
@@ -161,3 +162,13 @@ def kingMoves(b, row, col, player, castling):
                 and isFree(b, 0, 2) and isFree(b, 0, 1)):
             moves.append((0, 2, None))
     return moves
+
+
+def findKings(b):
+    kings = {}
+    for row, col in squares:
+        if b[row][col] == "K":
+            kings["w"] = (row, col)
+        elif b[row][col] == "k":
+            kings["b"] = (row, col)
+    return kings
