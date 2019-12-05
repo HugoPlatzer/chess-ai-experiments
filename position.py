@@ -3,11 +3,17 @@ import moves
 class Position:
     def __init__(self, fen):
         fenParts = parseFEN(fen)
-        self.board, self.player = fenParts[0], fenParts[1]
+        self.board = fenParts[0]
+        self.player = fenParts[1]
+        self.castlingRights = fenParts[2]
+        self.enpassantSquare = fenParts[3]
     
     
     def __str__(self):
-        return "\n".join(self.board) + "\n" + self.player
+        boardStr = "position:\n" + "\n".join(self.board)
+        extraStr = "player = {}, castling = {}, enpassant = {}".format(
+                self.player, self.castlingRights, self.enpassantSquare)
+        return boardStr + "\n" + extraStr
     
     
     def getMoves(self):
@@ -17,7 +23,7 @@ class Position:
                 if self.isCurrentPlayer(row, col):
                     movesFromHere = self.pieceMovesFrom(row, col)
                     for move in movesFromHere:
-                        moves.append(((row, col), move))
+                        moves.append((row, col, move[0], move[1], move[2]))
         return moves
     
     
@@ -33,13 +39,20 @@ class Position:
         piece = self.board[row][col]
         if piece in ("r", "R"):
             return moves.rookMoves(self.board, row, col)
-        if piece in ("b", "B"):
+        elif piece in ("b", "B"):
             return moves.bishopMoves(self.board, row, col)
-        if piece in ("q", "Q"):
+        elif piece in ("q", "Q"):
             return moves.queenMoves(self.board, row, col)
-        if piece in ("n", "N"):
+        elif piece in ("n", "N"):
             return moves.knightMoves(self.board, row, col, self.player)
-        return []
+        elif piece in ("p", "P"):
+            return moves.pawnMoves(self.board, row, col,
+                                   self.player, self.enpassantSquare)
+        elif piece in ("k", "K"):
+            return moves.kingMoves(self.board, row, col,
+                                   self.player, self.castlingRights)
+        else:
+            return []
 
 
 
@@ -49,16 +62,19 @@ def parseSquare(s):
     return ("87654321".index(s[1]), "abcdefgh".index(s[0]))
 
 
-def squareToStr(s):
-    return "abcdefgh"[s[1]] + "87654321"[s[0]]
+def squareToStr(row, col):
+    return "abcdefgh"[col] + "87654321"[row]
 
 
 def moveToStr(m):
-    return squareToStr(m[0]) + squareToStr(m[1])
+    s = squareToStr(m[0], m[1]) + squareToStr(m[2], m[3])
+    if m[4] != None:
+        s += m[4].upper()
+    return s
 
 
 def parseCastling(s):
-    return "" if s == "-" else s
+    return [] if s == "-" else [c for c in s]
 
 
 def parseFENBoard(b):
