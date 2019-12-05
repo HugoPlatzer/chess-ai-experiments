@@ -1,7 +1,9 @@
 squares = [(row, col) for row in range(8) for col in range(8)]
 
+
 def opponentOf(player):
     return "b" if player == "w" else "w"
+
 
 def areOpponents(b, row1, col1, row2, col2):
     if b[row1][col1].isupper() and b[row2][col2].islower():
